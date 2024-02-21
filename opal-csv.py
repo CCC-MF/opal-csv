@@ -1,6 +1,7 @@
 import pandas
 import sys
 
+# Map CSV-Lines to used ICD10-Groups
 def map_entries(entry):
 
     match entry:
@@ -61,19 +62,28 @@ def map_entries(entry):
         case _:
             return 'OTHER'
 
-if len(sys.argv) < 3:
-    print("Usage: python3 opal-csv.py <INPUTFILE> <OUTPUTFILE>")
-    sys.exit(1)
-
+# Map Groups to Group-Size
 def apply_entries(entry):
     return len(entry)
 
-print("Lese Datei: ", sys.argv[1])
-print("Schreibe Datei: ", sys.argv[2])
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: python3 opal-csv.py <INPUTFILE> <OUTPUTFILE>")
+        return
 
-csv = pandas.read_csv(sys.argv[1], usecols=lambda col: col.upper() in ["CONDCODINGCODE"])
-data = csv.map(map_entries).groupby(['condcodingcode']).apply(apply_entries, include_groups=False)
+    print("Lese Datei: ", sys.argv[1])
+    print("Schreibe Datei: ", sys.argv[2])
 
-data.to_csv(sys.argv[2])
+    csv = pandas.read_csv(sys.argv[1], usecols=lambda col: col.upper() in ["CONDCODINGCODE"])
+    data = csv.map(map_entries).groupby(['condcodingcode']).apply(apply_entries, include_groups=False)
 
-print(data)
+    data.to_csv(sys.argv[2])
+
+    print("Folgende Angaben werden in die CSV-Datei geschrieben")
+    print(data)
+
+if __name__ == "__main__":
+    main()
+
+
+
